@@ -1,0 +1,26 @@
+name: Download File from URL
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'https://tg-cloud-dl-x.noyes.in/file/6e713c6a-8f16-4025-9bd6-7c9d3224f6f5/download'
+        required: true
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: دانلود فایل
+        run: |
+          curl -f -L -A "Mozilla/5.0" -O -J -v "${{ github.event.inputs.url }}" 2>&1 | tee curl.log
+          if [ $? -ne 0 ]; then
+            cat curl.log
+            exit 1
+          fi
+          echo "DOWNLOADED_FILE=$(ls -t | head -1)" >> $GITHUB_ENV
+      - name: آپلود فایل
+        uses: actions/upload-artifact@v4
+        with:
+          name: file
+          path: ${{ env.DOWNLOADED_FILE }}
